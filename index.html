@@ -36,6 +36,46 @@
       </div>
       <p class="note">A drop in inventory or receivables frees cash. A rise in accounts payable frees cash.</p>
     </section>
+    <section aria-labelledby="levers-h">
+      <h2 id="levers-h">Pull the levers</h2>
+      <p class="note">Move a slider to change the days. Revenue and COGS stay at their Before values.</p>
+      <div class="presets">
+        <button type="button" id="set-before">Set to Before</button>
+        <button type="button" id="set-after">Set to After</button>
+      </div>
+      <div class="slider">
+        <label for="dio">DIO (inventory days) <output id="dio-out" for="dio"></output></label>
+        <input type="range" id="dio" min="0" max="150" step="any">
+      </div>
+      <div class="slider">
+        <label for="dso">DSO (collection days) <output id="dso-out" for="dso"></output></label>
+        <input type="range" id="dso" min="0" max="90" step="any">
+      </div>
+      <div class="slider">
+        <label for="dpo">DPO (payment days) <output id="dpo-out" for="dpo"></output></label>
+        <input type="range" id="dpo" min="0" max="120" step="any">
+      </div>
+
+      <div class="big">
+        <span>Cash conversion cycle</span>
+        <strong id="lever-ccc"></strong>
+        <span id="lever-ccc-change" class="note"></span>
+      </div>
+
+      <div class="table-wrap">
+        <table id="lever-table">
+          <thead><tr><th scope="col">Lever</th><th scope="col">Before balance</th><th scope="col">Balance at these days</th><th scope="col">Cash freed</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div class="table-wrap">
+        <table id="lever-extra">
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="note">Interest saved assumes every freed dollar pays down the bank line, up to its Before balance. The case's After balance sheet shows ElectroMart kept part of the cash instead.</p>
+    </section>
   </main>
 
   <script src="ccc.js"></script>

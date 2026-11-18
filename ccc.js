@@ -67,8 +67,49 @@
              total: inventory + receivables + payables };
   }
 
+  // Nominal annual cost of skipping the supplier discount when paying on day `daysPaid`.
+  // d / (1 - d) x daysInYear / (daysPaid - discountDays). Returns null if the
+  // payment falls inside the discount period, because then ElectroMart takes the discount.
+  function discountCost(daysPaid, a) {
+    if (daysPaid <= a.discount_days) return null;
+    const d = a.supplier_discount;
+    return d / (1 - d) * a.days_in_year / (daysPaid - a.discount_days);
+  }
+
+  // Everything the levers show, for chosen days { dio, dso, dpo }.
+  // Revenue and COGS stay at their Before values; balances are what the days imply.
+  function leverResults(days, before, a) {
+    const y = a.days_in_year;
+    const inventory = days.dio * before.cogs / y;
+    const receivables = days.dso * before.revenue / y;
+    const payables = days.dpo * before.cogs / y;
+
+    const freedInventory = before.inventory - inventory;
+    const freedReceivables = before.accounts_receivable - receivables;
+    const freedPayables = payables - before.accounts_payable;
+    const freedTotal = freedInventory + freedReceivables + freedPayables;
+
+    // Freed cash pays down the bank line, but only up to what was owed Before.
+    // Negative freed cash means more borrowing, shown as a negative saving.
+    const paidDown = Math.min(freedTotal, before.notes_payable);
+    const interestSaved = paidDown * a.bank_rate;
+
+    return {
+      ccc: days.dio + days.dso - days.dpo,
+      balances: { inventory: inventory, receivables: receivables, payables: payables },
+      cashFreed: { inventory: freedInventory, receivables: freedReceivables,
+                   payables: freedPayables, total: freedTotal },
+      bankPaidDown: paidDown,
+      interestSaved: interestSaved,
+      daysPastDue: Math.max(0, days.dpo - a.net_days),
+      takesDiscount: days.dpo <= a.discount_days,
+      discountCost: discountCost(days.dpo, a)
+    };
+  }
+
   const api = { parseCSV: parseCSV, readStatements: readStatements, readAssumptions: readAssumptions,
-                dayCounts: dayCounts, cashFreed: cashFreed, cashFreedFromDays: cashFreedFromDays };
+                dayCounts: dayCounts, cashFreed: cashFreed, cashFreedFromDays: cashFreedFromDays,
+                discountCost: discountCost, leverResults: leverResults };
 
   if (typeof module !== "undefined" && module.exports) { module.exports = api; }
   else { root.CCC = api; }

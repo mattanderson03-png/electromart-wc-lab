@@ -45,6 +45,59 @@
     addRow(ct, ["Total cash freed", "", "", money(f.total)], "total");
   }
 
+  const pct = function (x) { return (x * 100).toFixed(2) + "%"; };
+
+  // Wire up the three sliders and the two preset buttons.
+  function setupLevers(st, as) {
+    const y = as.days_in_year;
+    const b = CCC.dayCounts(st.before, y);
+    const a = CCC.dayCounts(st.after, y);
+    const ids = ["dio", "dso", "dpo"];
+    const inputs = {};
+    ids.forEach(function (k) {
+      inputs[k] = document.getElementById(k);
+      // Make sure the slider's range covers both periods' values.
+      const need = Math.ceil(Math.max(b[k], a[k]) * 1.5);
+      if (Number(inputs[k].max) < need) inputs[k].max = need;
+      inputs[k].addEventListener("input", update);
+    });
+
+    function setDays(d) {
+      // Range inputs with step="any" keep the exact value, e.g. 32.85.
+      ids.forEach(function (k) { inputs[k].value = d[k]; });
+      update();
+    }
+    document.getElementById("set-before").addEventListener("click", function () { setDays(b); });
+    document.getElementById("set-after").addEventListener("click", function () { setDays(a); });
+
+    function update() {
+      const days = { dio: Number(inputs.dio.value), dso: Number(inputs.dso.value), dpo: Number(inputs.dpo.value) };
+      ids.forEach(function (k) { document.getElementById(k + "-out").textContent = days2(days[k]) + " days"; });
+
+      const r = CCC.leverResults(days, st.before, as);
+      document.getElementById("lever-ccc").textContent = days2(r.ccc) + " days";
+      document.getElementById("lever-ccc-change").textContent =
+        signedDays(r.ccc - b.ccc) + " days vs Before (" + days2(b.ccc) + ")";
+
+      const lt = document.querySelector("#lever-table tbody");
+      lt.innerHTML = "";
+      addRow(lt, ["Inventory", money(st.before.inventory), money(r.balances.inventory), money(r.cashFreed.inventory)]);
+      addRow(lt, ["Receivables", money(st.before.accounts_receivable), money(r.balances.receivables), money(r.cashFreed.receivables)]);
+      addRow(lt, ["Payables", money(st.before.accounts_payable), money(r.balances.payables), money(r.cashFreed.payables)]);
+      addRow(lt, ["Total cash freed", "", "", money(r.cashFreed.total)], "total");
+
+      const et = document.querySelector("#lever-extra tbody");
+      et.innerHTML = "";
+      addRow(et, ["Interest saved per year (if freed cash pays down the bank line at " + pct(as.bank_rate) + ")",
+                  money(r.interestSaved)]);
+      addRow(et, ["Days paid past the net-" + as.net_days + " due date", days2(r.daysPastDue)]);
+      addRow(et, ["Annual cost of skipping the " + pct(as.supplier_discount) + " discount",
+                  r.takesDiscount ? "Takes the discount" : pct(r.discountCost)]);
+    }
+
+    setDays(b);
+  }
+
   function getText(path) {
     return fetch(path).then(function (r) {
       if (!r.ok) throw new Error("Could not load " + path);
@@ -57,6 +110,7 @@
       const st = CCC.readStatements(CCC.parseCSV(texts[0]));
       const as = CCC.readAssumptions(CCC.parseCSV(texts[1]));
       render(st, as);
+      setupLevers(st, as);
       document.getElementById("status").hidden = true;
     })
     .catch(function (err) {
