@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ElectroMart CCC</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#b5121b">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="ElectroMart CCC">
+</head>
+<body>
+  <header>
+    <h1>ElectroMart Cash Conversion Cycle</h1>
+    <p class="sub">FIN 4150 · Chapter 14: Working Capital Policy</p>
+  </header>
+
+  <main>
+    <p id="status" class="status">Loading data…</p>
+
+    <section aria-labelledby="days-h">
+      <h2 id="days-h">How long is a dollar tied up?</h2>
+      <div class="table-wrap">
+        <table id="days-table">
+          <thead><tr><th scope="col">Measure</th><th scope="col">Before</th><th scope="col">After</th><th scope="col">Change</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="note">CCC = DIO + DSO − DPO. Uses a <span id="year-days">365</span>-day year.</p>
+    </section>
+
+    <section aria-labelledby="cash-h">
+      <h2 id="cash-h">Cash freed by each lever</h2>
+      <div class="table-wrap">
+        <table id="cash-table">
+          <thead><tr><th scope="col">Lever</th><th scope="col">Before balance</th><th scope="col">After balance</th><th scope="col">Cash freed</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="note">A drop in inventory or receivables frees cash. A rise in accounts payable frees cash.</p>
+    </section>
+    <section aria-labelledby="levers-h">
+      <h2 id="levers-h">Pull the levers</h2>
+      <p class="note">Move a slider to change the days. Revenue and COGS stay at their Before values.</p>
+      <div class="presets">
+        <button type="button" id="set-before">Set to Before</button>
+        <button type="button" id="set-after">Set to After</button>
+      </div>
+      <div class="slider">
+        <label for="dio">DIO (inventory days) <output id="dio-out" for="dio"></output></label>
+        <input type="range" id="dio" min="0" max="150" step="any">
+      </div>
+      <div class="slider">
+        <label for="dso">DSO (collection days) <output id="dso-out" for="dso"></output></label>
+        <input type="range" id="dso" min="0" max="90" step="any">
+      </div>
+      <div class="slider">
+        <label for="dpo">DPO (payment days) <output id="dpo-out" for="dpo"></output></label>
+        <input type="range" id="dpo" min="0" max="120" step="any">
+      </div>
+
+      <div class="big">
+        <span>Cash conversion cycle</span>
+        <strong id="lever-ccc"></strong>
+        <span id="lever-ccc-change" class="note"></span>
+      </div>
+
+      <div class="table-wrap">
+        <table id="lever-table">
+          <thead><tr><th scope="col">Lever</th><th scope="col">Before balance</th><th scope="col">Balance at these days</th><th scope="col">Cash freed</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div class="table-wrap">
+        <table id="lever-extra">
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="note">Interest saved assumes every freed dollar pays down the bank line, up to its Before balance. The case's After balance sheet shows ElectroMart kept part of the cash instead.</p>
+    </section>
+  </main>
+
+  <script src="ccc.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
